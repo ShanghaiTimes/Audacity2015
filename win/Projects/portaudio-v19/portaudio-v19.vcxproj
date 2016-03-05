@@ -42,8 +42,8 @@
     <UseWasapi>true</UseWasapi>
     <UseWmme>true</UseWmme>
     <UseDs>true</UseDs>
-    <UseAsioSdk Condition=" '$(ASIOSDK_DIR)' != '' And Exists($(ASIDSK_DIR))">$(ASIOSDK_DIR)</UseAsioSdk>
-    <UseJackSdk Condition=" '$(JACKSDK_DIR)' != '' And Exists($(JACKSDK_DIR))">$(JACKSDK_DIR)</UseJackSdk>
+    <UseAsioSdk Condition=" '$(ASIOSDK_DIR)' != '' And Exists('$(ASIOSDK_DIR)')">$(ASIOSDK_DIR)</UseAsioSdk>
+    <UseJackSdk Condition=" '$(JACKSDK_DIR)' != '' And Exists('$(JACKSDK_DIR)')">$(JACKSDK_DIR)</UseJackSdk>
   </PropertyGroup>
   <PropertyGroup>
     <SdkPreprocessorDefinitions Condition=" '$(UseWdmks)' != '' ">PA_USE_WDMKS=1;$(SdkPreprocessorDefinitions)</SdkPreprocessorDefinitions>
