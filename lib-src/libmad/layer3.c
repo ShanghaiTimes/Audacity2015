@@ -19,6 +19,10 @@
  * $Id: layer3.c,v 1.3 2005-09-12 07:01:30 dmazzoni Exp $
  */
 
+#ifdef _MSC_VER
+#  include <io.h>
+#  include <stdint.h>
+#endif
 # ifdef HAVE_CONFIG_H
 #  include "config.h"
 # endif
@@ -1040,7 +1044,8 @@ enum mad_error III_huffdecode(struct mad_bitptr *ptr, mad_fixed_t xr[576],
 	pair    = &table[pair->ptr.offset + MASK(bitcache, cachesz, clumpsz)];
       }
 
-      cachesz -= pair->value.hlen;
+	  unsigned int cachesz;
+	  cachesz -= pair->value.hlen;
 
       if (linbits) {
 	/* x (0..14) */
@@ -2632,7 +2637,7 @@ int mad_layer_III(struct mad_stream *stream, struct mad_frame *frame)
 	assert(stream->md_len + md_len -
 	       si.main_data_begin <= MAD_BUFFER_MDLEN);
 
-   int nCopy = md_len - si.main_data_begin;
+   unsigned int nCopy = md_len - si.main_data_begin;
    if (nCopy > MAD_BUFFER_MDLEN - stream->md_len)
       // PRL defend against an observed violation of the assertion above
       nCopy = MAD_BUFFER_MDLEN - stream->md_len;

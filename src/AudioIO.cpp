@@ -4207,6 +4207,7 @@ int audacityAudioCallback(const void *inputBuffer, void *outputBuffer,
                len = gAudioIO->mPlaybackBuffers[t]->Get((samplePtr)tempBufs[chanCnt],
                                                          floatSample,
                                                          (int)framesPerBuffer);
+
                if (len < framesPerBuffer)
                   // Pad with zeroes to the end, in case of a short channel
                   memset((void*)&tempBufs[chanCnt][len], 0,

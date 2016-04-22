@@ -319,7 +319,7 @@ void psycho_4(twolame_options * glopts,
     FHBLK *lthr;
     F2HBLK *r, *phi_sav;
 
-    int nch = glopts->num_channels_out;
+   unsigned int nch = glopts->num_channels_out;
     int sfreq = glopts->samplerate_out;
 
     if (!glopts->p4mem) {
@@ -356,7 +356,7 @@ void psycho_4(twolame_options * glopts,
         r = mem->r;
         phi_sav = mem->phi_sav;
     }
-
+	
     for (ch = 0; ch < nch; ch++) {
         for (run = 0; run < 2; run++) {
             /* Net offset is 480 samples (1056-576) for layer 2; this is because one must stagger

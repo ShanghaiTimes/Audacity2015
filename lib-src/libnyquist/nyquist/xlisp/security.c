@@ -10,11 +10,22 @@
 #include <string.h>
 #include <xlisp.h>
 
+
+#ifdef _MSC_VER
+#  include <io.h>
+#  include <stdint.h>
+#  include <direct.h>
+char *_getcwd(
+	char *buffer,
+	int maxlen
+);
+#endif
+
+
 static void find_full_path(const char *filename, char *fullname);
 static int in_tree(const char *fullname, char *secure_read_path);
 static int full_name(const char *filename);
 static int file_sep(char c);
-int getcwd(char *fullname, int a);
 
 /* run_time_limit is a feature to shut down infinite loops
  * calls to oscheck are counted. These occur at around 66Hz
@@ -84,7 +95,7 @@ void find_full_path(const char *filename, char *fullname)
 	fullname[STRMAX - 1] = 0;
 	return;
     }
-    if (!getcwd(fullname, STRMAX)) {
+    if (!_getcwd(fullname, STRMAX)) {
 	/* something is really wrong. Pretend we found a
 	   cwd that will not match anything */
 	goto error;

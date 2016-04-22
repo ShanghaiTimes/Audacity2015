@@ -278,7 +278,7 @@ void psycho_2(twolame_options * glopts, short int buffer[2][1152],
     F2HBLK *r, *phi_sav;
     FLOAT *absthr;
 
-    int nch = glopts->num_channels_out;
+    unsigned int nch = glopts->num_channels_out;
     int sfreq = glopts->samplerate_out;
 
 
@@ -317,7 +317,7 @@ void psycho_2(twolame_options * glopts, short int buffer[2][1152],
         absthr = mem->absthr;
     }
 
-
+	
     for (ch = 0; ch < nch; ch++) {
         for (i = 0; i < 2; i++) {
       /*****************************************************************************

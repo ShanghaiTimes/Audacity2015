@@ -406,7 +406,7 @@ ioptr[15] = f6i;
 }
 
 //inline void bfR2(float *ioptr, long M, long NDiffU);
-static inline void bfR2(float *ioptr, long M, long NDiffU){
+static inline void bfR2(float *ioptr, long M, unsigned long NDiffU){
 /*** 2nd radix 2 stage ***/
 unsigned long	pos;
 unsigned long	posi;
@@ -734,7 +734,8 @@ unsigned long 	NSameU;
 unsigned long 	Uinc;
 unsigned long 	Uinc2;
 unsigned long 	Uinc4;
-unsigned long 	DiffUCnt;
+//unsigned 
+long 	DiffUCnt;
 unsigned long 	SameUCnt;
 unsigned long 	U2toU3;
 
@@ -1798,7 +1799,8 @@ unsigned long 	NSameU;
 unsigned long 	Uinc;
 unsigned long 	Uinc2;
 unsigned long 	Uinc4;
-unsigned long 	DiffUCnt;
+//unsigned 
+long 	DiffUCnt;
 unsigned long 	SameUCnt;
 unsigned long 	U2toU3;
 
@@ -2485,7 +2487,8 @@ static inline void frstage(float *ioptr, long M, float *Utbl){
 
 unsigned long 	pos;
 unsigned long 	posi;
-unsigned long 	diffUcnt;
+//unsigned 
+long 	diffUcnt;
 
 float 	*p0r, *p1r;
 float 	*u0r, *u0i;
@@ -2976,7 +2979,8 @@ static inline void ifrstage(float *ioptr, long M, float *Utbl){
 
 unsigned long 	pos;
 unsigned long 	posi;
-unsigned long 	diffUcnt;
+//unsigned 
+long 	diffUcnt;
 
 float 	*p0r, *p1r;
 float 	*u0r, *u0i;
