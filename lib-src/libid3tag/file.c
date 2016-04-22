@@ -31,6 +31,7 @@
 
 #ifdef _MSC_VER
 #  include <io.h>
+#  include <stdint.h>
 #endif
 
 # ifdef HAVE_UNISTD_H
@@ -212,7 +213,30 @@ struct id3_tag *add_tag(struct id3_file *file, id3_length_t length)
 
   /* check for duplication/overlap */
   {
-    unsigned long begin1, end1, begin2, end2;
+	  // Check windows
+#if _WIN32 || _WIN64
+#if _WIN64
+//#define ENVIRONMENT64
+//#include <stdint.h>
+	   int64_t begin1, end1, begin2, end2;
+#else
+//#define ENVIRONMENT32
+	  unsigned long begin1, end1, begin2, end2;
+#endif
+#endif
+
+	  // Check GCC
+#if __GNUC__
+#if __x86_64__ || __ppc64__
+//#define ENVIRONMENT64
+//#include <stdint.h>
+	  int64_t begin1, end1, begin2, end2;
+#else
+//#define ENVIRONMENT32
+	  unsigned long begin1, end1, begin2, end2;
+#endif
+#endif 
+	  //unsigned long begin1, end1, begin2, end2;
 
     begin1 = location;
     end1   = begin1 + length;

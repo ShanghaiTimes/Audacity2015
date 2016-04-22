@@ -25,8 +25,33 @@
 # include "id3tag.h"
 
 id3_length_t id3_render_immediate(id3_byte_t **, char const *, unsigned int);
+// Check windows
+#if _WIN32 || _WIN64
+#if _WIN64
+#define ENVIRONMENT64
+id3_length_t id3_render_syncsafe(id3_byte_t **, unsigned long long, unsigned int);
+id3_length_t id3_render_int(id3_byte_t **, signed long long, unsigned int);
+#else
+#define ENVIRONMENT32
 id3_length_t id3_render_syncsafe(id3_byte_t **, unsigned long, unsigned int);
-id3_length_t id3_render_int(id3_byte_t **, signed long, unsigned int);
+#endif
+#endif
+
+// Check GCC
+#if __GNUC__
+#if __x86_64__ || __ppc64__
+#define ENVIRONMENT64
+id3_length_t id3_render_syncsafe(id3_byte_t **, unsigned long long, unsigned int);
+id3_length_t id3_render_int(id3_byte_t **, signed long long, unsigned int);
+#else
+#define ENVIRONMENT32
+id3_length_t id3_render_syncsafe(id3_byte_t **, unsigned long long, unsigned int);
+#endif
+#endif 
+
+//id3_length_t id3_render_syncsafe(id3_byte_t **, unsigned long, unsigned int);
+//id3_length_t id3_render_int(id3_byte_t **, signed long, unsigned int);
+
 id3_length_t id3_render_binary(id3_byte_t **,
 			       id3_byte_t const *, id3_length_t);
 id3_length_t id3_render_latin1(id3_byte_t **, id3_latin1_t const *, int);

@@ -22,8 +22,11 @@
  * $Id: id3tag.h,v 1.4 2007-04-29 05:10:24 llucius Exp $
  */
 
+
 # ifndef LIBID3TAG_ID3TAG_H
 # define LIBID3TAG_ID3TAG_H
+
+
 
 # ifdef __cplusplus
 extern "C" {
@@ -34,7 +37,31 @@ extern "C" {
 # define ID3_TAG_VERSION_MINOR(x)	(((x) >> 0) & 0xff)
 
 typedef unsigned char id3_byte_t;
+// Check windows
+#if _WIN32 || _WIN64
+#if _WIN64
+//ENVIRONMENT64
+#include <stdint.h>
+typedef int64_t id3_length_t;
+#else
+//ENVIRONMENT32
 typedef unsigned long id3_length_t;
+#endif
+#endif
+
+// Check GCC
+#if __GNUC__
+#if __x86_64__ || __ppc64__
+//ENVIRONMENT64
+#include <stdint.h>
+typedef int64_t id3_length_t;
+#else
+//ENVIRONMENT32
+typedef unsigned long id3_length_t;
+#endif
+#endif
+
+//typedef unsigned long id3_length_t;
 
 typedef unsigned long id3_ucs4_t;
 

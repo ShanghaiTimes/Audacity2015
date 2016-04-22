@@ -227,7 +227,7 @@ struct id3_frame *id3_tag_findframe(struct id3_tag const *tag,
   if (id == 0 || *id == 0)
     return (index < tag->nframes) ? tag->frames[index] : 0;
 
-  len = strlen(id);
+    len = (int) strlen(id);
 
   if (len == 4) {
     struct id3_compat const *compat;
@@ -235,7 +235,7 @@ struct id3_frame *id3_tag_findframe(struct id3_tag const *tag,
     compat = id3_compat_lookup(id, len);
     if (compat && compat->equiv && !compat->translate) {
       id  = compat->equiv;
-      len = strlen(id);
+      len = (int) strlen(id);
     }
   }
 
@@ -290,8 +290,8 @@ signed long id3_tag_query(id3_byte_t const *data, id3_length_t length)
 {
   unsigned int version;
   int flags;
-  id3_length_t size;
-
+  //id3_length_t size;
+  _int64 size;
   assert(data);
 
   switch (tagtype(data, length)) {

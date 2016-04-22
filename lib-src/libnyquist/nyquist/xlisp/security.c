@@ -14,6 +14,7 @@ static void find_full_path(const char *filename, char *fullname);
 static int in_tree(const char *fullname, char *secure_read_path);
 static int full_name(const char *filename);
 static int file_sep(char c);
+int getcwd(char *fullname, int a);
 
 /* run_time_limit is a feature to shut down infinite loops
  * calls to oscheck are counted. These occur at around 66Hz

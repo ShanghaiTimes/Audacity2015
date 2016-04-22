@@ -62,7 +62,7 @@ id3_length_t id3_render_immediate(id3_byte_t **ptr,
 }
 
 id3_length_t id3_render_syncsafe(id3_byte_t **ptr,
-				 unsigned long num, unsigned int bytes)
+				 unsigned long long num, unsigned int bytes)
 {
   assert(bytes == 4 || bytes == 5);
 
@@ -80,16 +80,16 @@ id3_length_t id3_render_syncsafe(id3_byte_t **ptr,
 }
 
 id3_length_t id3_render_int(id3_byte_t **ptr,
-			    signed long num, unsigned int bytes)
+			    signed long long num, unsigned int bytes)
 {
   assert(bytes >= 1 && bytes <= 4);
 
   if (ptr) {
     switch (bytes) {
-    case 4: *(*ptr)++ = num >> 24;
-    case 3: *(*ptr)++ = num >> 16;
-    case 2: *(*ptr)++ = num >>  8;
-    case 1: *(*ptr)++ = num >>  0;
+    case 4: *(*ptr)++ = (int)num >> 24;
+    case 3: *(*ptr)++ = (int)num >> 16;
+    case 2: *(*ptr)++ = (int)num >>  8;
+    case 1: *(*ptr)++ = (_int64)num >>  0;
     }
   }
 

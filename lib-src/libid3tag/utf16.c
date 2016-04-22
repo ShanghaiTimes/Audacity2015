@@ -114,7 +114,7 @@ id3_length_t id3_utf16_decodechar(id3_utf16_t const *utf16, id3_ucs4_t *ucs4)
 id3_length_t id3_utf16_encodechar(id3_utf16_t *utf16, id3_ucs4_t ucs4)
 {
   if (ucs4 < 0x00010000L) {
-    utf16[0] = ucs4;
+    utf16[0] = (id3_utf16_t) ucs4;
 
     return 1;
   }
