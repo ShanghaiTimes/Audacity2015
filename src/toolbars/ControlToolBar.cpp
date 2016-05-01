@@ -107,7 +107,6 @@ ControlToolBar::ControlToolBar()
    /* i18n-hint: These are strings for the status bar, and indicate whether Audacity
    is playing or recording or stopped, and whether it is paused. */
    mStatePlay = XO("Playing");
-   mStateScrub = XO("Scrubbing");
    mStateStop = XO("Stopped");
    mStateRecord = XO("Recording");
    mStatePause = XO("Paused");
@@ -676,6 +675,10 @@ int ControlToolBar::PlayPlayRegion(const SelectedRegion &selectedRegion,
       return -1;
    }
 
+   // Let other UI update appearance
+   if (p)
+      p->GetRulerPanel()->HideQuickPlayIndicator();
+
    return token;
 }
 
@@ -773,6 +776,12 @@ void ControlToolBar::PlayDefault()
 
 void ControlToolBar::StopPlaying(bool stopStream /* = true*/)
 {
+   AudacityProject *project = GetActiveProject();
+
+   if(project)
+      // Let scrubbing code do some appearance change
+      project->GetScrubber().StopScrubbing();
+
    if (!CanStopAudioStream())
       return;
 
@@ -798,7 +807,6 @@ void ControlToolBar::StopPlaying(bool stopStream /* = true*/)
    mBusyProject = NULL;
    // So that we continue monitoring after playing or recording.
    // also clean the MeterQueues
-   AudacityProject *project = GetActiveProject();
    if( project ) {
       project->MayStartMonitoring();
 
@@ -1170,28 +1178,24 @@ void ControlToolBar::ClearCutPreviewTracks()
 int ControlToolBar::WidthForStatusBar(wxStatusBar* const sb)
 {
    int xMax = 0;
-   int x, y;
+   const auto pauseString = wxT(" ") + wxGetTranslation(mStatePause);
 
-   sb->GetTextExtent(wxString(wxGetTranslation(mStatePlay)) + wxT(" ") +
-                     wxString(wxGetTranslation(mStatePause)) + wxT("."), &x, &y);
-   if (x > xMax)
-      xMax = x;
+   auto update = [&] (const wxString &state, bool pauseToo) {
+      int x, y;
+      sb->GetTextExtent(
+         wxGetTranslation(state) + ( pauseToo ? pauseString : wxString{} ) + wxT("."),
+         &x, &y
+      );
+      xMax = std::max(x, xMax);
+   };
 
-   sb->GetTextExtent(wxString(wxGetTranslation(mStateStop)) + wxT(" ") +
-                     wxString(wxGetTranslation(mStatePause)) + wxT("."), &x, &y);
-   if (x > xMax)
-      xMax = x;
-
-   sb->GetTextExtent(wxString(wxGetTranslation(mStateRecord)) + wxT(" ") +
-                     wxString(wxGetTranslation(mStatePause)) + wxT("."), &x, &y);
-   if (x > xMax)
-      xMax = x;
+   update(mStatePlay, true);
+   update(mStateStop, true);
+   update(mStateRecord, true);
 
    // Note that Scrubbing + Paused is not allowed.
-   sb->GetTextExtent(wxString(wxGetTranslation(mStateScrub)) +
-                     wxT("."), &x, &y);
-   if (x > xMax)
-      xMax = x;
+   for(const auto &state : Scrubber::GetAllUntranslatedStatusStrings())
+      update(state, false);
 
    return xMax + 30;    // added constant needed because xMax isn't large enough for some reason, plus some space.
 }
@@ -1201,8 +1205,10 @@ wxString ControlToolBar::StateForStatusBar()
    wxString state;
 
    auto pProject = GetActiveProject();
-   if (pProject && pProject->GetScrubber().HasStartedScrubbing())
-      state = wxGetTranslation(mStateScrub);
+   auto scrubState =
+      pProject ? pProject->GetScrubber().GetUntranslatedStateString() : wxString();
+   if (!scrubState.IsEmpty())
+      state = wxGetTranslation(scrubState);
    else if (mPlay->IsDown())
       state = wxGetTranslation(mStatePlay);
    else if (mRecord->IsDown())

@@ -693,7 +693,7 @@ namespace FLAC {
 
 			clear_field_name();
 
-			if(0 == (field_name_ = strdup(field_name))) {
+			if(0 == (field_name_ = _strdup(field_name))) {
 				is_valid_ = false;
 			}
 			else {

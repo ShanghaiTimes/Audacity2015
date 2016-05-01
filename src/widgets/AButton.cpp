@@ -187,6 +187,8 @@ AButton::AButton(wxWindow * parent,
 
 AButton::~AButton()
 {
+   if(HasCapture())
+      ReleaseMouse();
 }
 
 void AButton::Init(wxWindow * parent,
@@ -450,6 +452,8 @@ void AButton::OnMouseEvent(wxMouseEvent & event)
          GetActiveProject()->TP_DisplayStatusMessage(wxT(""));
       }
    }
+   else
+      event.Skip();
 }
 
 void AButton::OnCaptureLost(wxMouseCaptureLostEvent & WXUNUSED(event))

@@ -286,6 +286,7 @@ public:
    }
 
    bool IsSupportedFormat(const wxDataFormat & format, Direction WXUNUSED(dir = Get)) const
+      // PRL:  This function does NOT override any inherited virtual!  What does it do?
    {
       if (format.GetType() == wxDF_FILENAME) {
          return true;
@@ -318,10 +319,10 @@ public:
    }
 
 #if defined(__WXMAC__)
-   bool GetData()
+#if !wxCHECK_VERSION(3, 0, 0)
+   bool GetData() override
    {
       bool foundSupported = false;
-#if !wxCHECK_VERSION(3, 0, 0)
       bool firstFileAdded = false;
       OSErr result;
 
@@ -373,11 +374,11 @@ public:
             break;
          }
       }
-#endif
       return foundSupported;
    }
+#endif
 
-   bool OnDrop(wxCoord x, wxCoord y)
+   bool OnDrop(wxCoord x, wxCoord y) override
    {
       bool foundSupported = false;
 #if !wxCHECK_VERSION(3, 0, 0)
@@ -411,7 +412,7 @@ public:
 
 #endif
 
-   bool OnDropFiles(wxCoord WXUNUSED(x), wxCoord WXUNUSED(y), const wxArrayString& filenames)
+   bool OnDropFiles(wxCoord WXUNUSED(x), wxCoord WXUNUSED(y), const wxArrayString& filenames) override
    {
       //sort by OD non OD.  load Non OD first so user can start editing asap.
       wxArrayString sortednames(filenames);
@@ -839,8 +840,6 @@ AudacityProject::AudacityProject(wxWindow * parent, wxWindowID id,
    mIsSyncLocked = false;
    gPrefs->Read(wxT("/GUI/SyncLockTracks"), &mIsSyncLocked, false);
 
-   CreateMenusAndCommands();
-
    // LLL:  Read this!!!
    //
    // Until the time (and cpu) required to refresh the track panel is
@@ -927,6 +926,7 @@ AudacityProject::AudacityProject(wxWindow * parent, wxWindowID id,
                                              &mViewInfo,
                                              this,
                                              mRuler);
+   mTrackPanel->UpdatePrefs();
 
    mIndicatorOverlay = std::make_unique<PlayIndicatorOverlay>(this);
 
@@ -954,6 +954,8 @@ AudacityProject::AudacityProject(wxWindow * parent, wxWindowID id,
 #ifdef EXPERIMENTAL_SCRUBBING_BASIC
    mTrackPanel->AddOverlay(mScrubOverlay.get());
 #endif
+
+   CreateMenusAndCommands();
 
    // LLL: When Audacity starts or becomes active after returning from
    //      another application, the first window that can accept focus
@@ -1023,7 +1025,6 @@ AudacityProject::AudacityProject(wxWindow * parent, wxWindowID id,
    InitialState();
    FixScrollbars();
    mRuler->SetLeftOffset(mTrackPanel->GetLeftOffset());  // bevel on AdornedRuler
-   mRuler->SetProject(this);
 
    //
    // Set the Icon
@@ -1077,6 +1078,10 @@ AudacityProject::AudacityProject(wxWindow * parent, wxWindowID id,
 
 AudacityProject::~AudacityProject()
 {
+   // Tool manager gives us capture sometimes
+   if(HasCapture())
+      ReleaseMouse();
+
    if (wxGetApp().GetRecentFiles())
    {
       wxGetApp().GetRecentFiles()->RemoveMenu(mRecentFilesMenu);
@@ -1608,7 +1613,7 @@ void AudacityProject::TP_ScrollWindow(double scrollto)
 // handler in Track Panel. A positive argument makes the window
 // scroll down, while a negative argument scrolls up.
 //
-void AudacityProject::TP_ScrollUpDown(int delta)
+bool AudacityProject::TP_ScrollUpDown(int delta)
 {
    int oldPos = mVsbar->GetThumbPosition();
    int pos = oldPos + delta;
@@ -1629,7 +1634,10 @@ void AudacityProject::TP_ScrollUpDown(int delta)
 
       wxScrollEvent dummy;
       OnScroll(dummy);
+      return true;
    }
+   else
+      return false;
 }
 
 void AudacityProject::FixScrollbars()

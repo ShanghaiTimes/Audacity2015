@@ -528,6 +528,10 @@ def url_open(url):
         L = urlparse.urlparse(url)
         if L[1] != domain:
             conn.close()
+<<<<<<< HEAD
+=======
+            if L[1] == '': return(['',''])
+>>>>>>> 6d6ae5fa3c8031dad8c9a5df740768ae02ba8725
             print "connection to", domain, "closed."
             conn = httplib.HTTPConnection(L[1])
             domain = L[1]

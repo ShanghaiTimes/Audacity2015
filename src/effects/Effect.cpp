@@ -3192,6 +3192,8 @@ void EffectUIHost::OnPaint(wxPaintEvent & WXUNUSED(evt))
 
 void EffectUIHost::OnClose(wxCloseEvent & WXUNUSED(evt))
 {
+   DoCancel();
+
    CleanupRealtime();
 
    Hide();
@@ -3243,6 +3245,8 @@ void EffectUIHost::OnApply(wxCommandEvent & evt)
 
    if (IsModal())
    {
+      mDismissed = true;
+
       EndModal(true);
 
       Close();
@@ -3261,20 +3265,23 @@ void EffectUIHost::OnApply(wxCommandEvent & evt)
    return;
 }
 
+void EffectUIHost::DoCancel()
+{
+   if (!mDismissed) {
+      mEffect->mUIResultID = wxID_CANCEL;
+
+      if (IsModal())
+         EndModal(false);
+      else
+         Hide();
+
+      mDismissed = true;
+   }
+}
+
 void EffectUIHost::OnCancel(wxCommandEvent & evt)
 {
-   mEffect->mUIResultID = evt.GetId();
-
-   if (IsModal())
-   {
-      EndModal(false);
-
-      Close();
-
-      return;
-   }
-
-   Hide();
+   DoCancel();
 
    Close();
 

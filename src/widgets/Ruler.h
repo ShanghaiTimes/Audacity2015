@@ -102,6 +102,9 @@ class AUDACITY_DLL_API Ruler {
 
    // Good defaults are provided, but you can override here
    void SetFonts(const wxFont &minorFont, const wxFont &majorFont, const wxFont &minorMinorFont);
+   struct Fonts { wxFont *major, *minor, *minorMinor; };
+   Fonts GetFonts() const
+   { return { mMajorFont, mMinorFont, mMinorMinorFont }; }
 
    // Copies *pScale if it is not NULL
    void SetNumberScale(const NumberScale *pScale);
@@ -168,7 +171,7 @@ public:
    wxRect mRect;
 
 private:
-   wxColour mTickColour;
+   static wxColour mTickColour;
    wxPen mPen;
 
    int          mMaxWidth, mMaxHeight;
@@ -251,7 +254,7 @@ class AUDACITY_DLL_API RulerPanel final : public wxPanel {
 
    void DoSetSize(int x, int y,
                   int width, int height,
-                  int sizeFlags = wxSIZE_AUTO);
+                  int sizeFlags = wxSIZE_AUTO) override;
 
    void OnErase(wxEraseEvent &evt);
    void OnPaint(wxPaintEvent &evt);
@@ -291,10 +294,11 @@ public:
    bool AcceptsFocus() const override { return false; };
 
 public:
-   static int GetRulerHeight() { return 28; }
+   static int GetRulerHeight();
+   static int GetRulerHeight(bool showScrubBar);
+
    void SetLeftOffset(int offset);
 
-   void DrawCursor(double time);
    void DrawIndicator(double time, bool rec);
    void DrawSelection();
    void ClearIndicator();
@@ -303,34 +307,70 @@ public:
    void ClearPlayRegion();
    void GetPlayRegion(double* playRegionStart, double* playRegionEnd);
 
-   void SetProject(AudacityProject* project) {mProject = project;}
    void GetMaxSize(wxCoord *width, wxCoord *height);
 
    void InvalidateRuler();
 
    void UpdatePrefs();
    void RegenerateTooltips();
+   void HideQuickPlayIndicator();
+
+   void UpdateQuickPlayPos(wxCoord &mousPosX);
 
 private:
    void OnCapture(wxCommandEvent & evt);
    void OnPaint(wxPaintEvent &evt);
    void OnSize(wxSizeEvent &evt);
+   void UpdateRects();
    void OnMouseEvents(wxMouseEvent &evt);
+   void HandleQPClick(wxMouseEvent &event, wxCoord mousePosX);
+   void HandleQPDrag(wxMouseEvent &event, wxCoord mousePosX);
+   void HandleQPRelease(wxMouseEvent &event);
+
+   enum class StatusChoice {
+      EnteringPushbuttons,
+      EnteringQP,
+      EnteringScrubZone,
+      Leaving,
+      NoChange
+   };
+   void UpdateStatusBar(StatusChoice choice);
+
    void OnCaptureLost(wxMouseCaptureLostEvent &evt);
 
    void DoDrawBorder(wxDC * dc);
    void DoDrawMarks(wxDC * dc, bool /*text */ );
    void DoDrawCursor(wxDC * dc);
    void DoDrawSelection(wxDC * dc);
-   void DoDrawIndicator(wxDC * dc);
+   void DoDrawIndicator(wxDC * dc, double time, bool playing, int width, bool scrub);
+   void DoEraseIndicator(wxDC *dc, int x);
    QuickPlayIndicatorOverlay *GetOverlay();
    void DrawQuickPlayIndicator(wxDC * dc /*NULL to DELETE old only*/);
    void DoDrawPlayRegion(wxDC * dc);
+
+   wxRect GetButtonAreaRect() const;
+   enum class Button {
+      QuickPlay = 0,
+      ScrubBar,
+
+      NumButtons,
+      NoButton = -1
+   };
+   wxRect GetButtonRect( Button button ) const;
+   bool InButtonRect( Button button ) const;
+   bool GetButtonState( Button button ) const;
+   void ToggleButtonState( Button button );
+   void DoDrawPushbutton(wxDC *dc, Button button, bool down) const;
+   void DoDrawPushbuttons(wxDC *dc) const;
+   void HandlePushbuttonEvent(wxMouseEvent &evt);
 
    double Pos2Time(int p, bool ignoreFisheye = false);
    int Time2Pos(double t, bool ignoreFisheye = false);
 
    bool IsWithinMarker(int mousePosX, double markerTime);
+
+   int IndicatorBigWidth();
+   int IndicatorBigHeight();
 
 private:
 
@@ -341,21 +381,20 @@ private:
 
    Ruler mRuler;
    ViewInfo *const mViewInfo;
-   AudacityProject *mProject;
+   AudacityProject *const mProject;
    TrackList *mTracks;
 
    wxBitmap *mBack;
    wxMemoryDC mBackDC;
 
    wxRect mOuter;
+   wxRect mScrubZone;
    wxRect mInner;
 
    int mLeftOffset;  // Number of pixels before we hit the 'zero position'.
 
-   double mCurTime;
 
-
-   int mIndType;     // -1 = No indicator, 0 = Play, 1 = Record
+   int mIndType;     // -1 = No indicator, 0 = Record, 1 = Play
    double mIndTime;
    bool   mQuickPlayInd;
    double mQuickPlayPos;
@@ -376,6 +415,7 @@ private:
    // Pop-up menu
    //
    void ShowMenu(const wxPoint & pos);
+   void ShowScrubMenu(const wxPoint & pos);
    void DragSelection();
    void HandleSnapping();
    void OnToggleQuickPlay(wxCommandEvent &evt);
@@ -384,10 +424,14 @@ private:
    void OnAutoScroll(wxCommandEvent &evt);
    void OnLockPlayRegion(wxCommandEvent &evt);
 
+   void OnToggleScrubbing();
+
    bool mPlayRegionDragsSelection;
    bool mTimelineToolTip;
    bool mQuickPlayEnabled;
 
+
+   Button mCaptureState { Button::NoButton };
 
    enum MouseEventState {
       mesNone,
@@ -403,6 +447,11 @@ private:
    bool mIsDragging;
 
    std::unique_ptr<QuickPlayIndicatorOverlay> mOverlay;
+
+   StatusChoice mPrevZone { StatusChoice::NoChange };
+   bool mShowScrubbing { true };
+
+   wxFont mButtonFont;
 
    DECLARE_EVENT_TABLE()
 };

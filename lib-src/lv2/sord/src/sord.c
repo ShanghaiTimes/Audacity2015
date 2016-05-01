@@ -857,7 +857,7 @@ sord_get(SordModel*      model,
          const SordNode* o,
          const SordNode* g)
 {
-	if ((bool)s + (bool)p + (bool)o != 2) {
+	if ((int)s + (int)p + (int)o != 2) {
 		return NULL;
 	}
 

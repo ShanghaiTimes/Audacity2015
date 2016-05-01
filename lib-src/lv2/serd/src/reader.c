@@ -92,7 +92,7 @@ struct SerdReaderImpl {
 #endif
 };
 
-static int
+static bool
 r_err(SerdReader* reader, SerdStatus st, const char* fmt, ...)
 {
 	va_list args;
@@ -830,7 +830,8 @@ read_PrefixedName(SerdReader* reader, Ref dest, bool read_prefix, bool* ate_dot)
 static bool
 read_0_9(SerdReader* reader, Ref str, bool at_least_one)
 {
-	unsigned count = 0;
+	//unsigned 
+	bool count = 0;
 	for (uint8_t c; is_digit((c = peek_byte(reader))); ++count) {
 		push_byte(reader, str, eat_byte_safe(reader, c));
 	}

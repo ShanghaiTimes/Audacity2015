@@ -64,7 +64,7 @@ void smf_pressure();
 void smf_parameter();
 void smf_pitchbend();
 void smf_program();
-void smf_chanpressure();
+void smf_chanpressure(int,int);
 void smf_sysex();
 void smf_metamisc();
 void smf_metaseq();
